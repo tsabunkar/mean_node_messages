@@ -1,0 +1,1 @@
+npm init -> to add package.json in node project

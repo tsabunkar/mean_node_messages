@@ -1,0 +1,19 @@
+{
+  "name": "mean_messages_node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git remote add origin https://github.com/tsabunkar/mean_node_messages.git"
+  },
+  "author": "tejas",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.16.4"
+  }
+}
