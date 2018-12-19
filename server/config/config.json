@@ -1,0 +1,13 @@
+{
+
+    "test": {
+        "PORT": 3000,
+        "MONGODB_URI": "mongodb+srv://tejas-admin:icui4cuNOW@cluster0-0mtaj.azure.mongodb.net/test?retryWrites=true",
+        "JWT_SECRET": "mySalt123!"
+    },
+    "development": {
+        "PORT": 3000,
+        "MONGODB_URI": "mongodb+srv://tejas-admin:icui4cuNOW@cluster0-0mtaj.azure.mongodb.net/test?retryWrites=true",
+        "JWT_SECRET": "mySalt123!"
+    }
+}

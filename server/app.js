@@ -1,9 +1,31 @@
+require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
+const {
+    mongoose
+} = require('./db/mongoose_config');
+const {
+    PostModel
+} = require('./models/post');
 
 // route/path
 const app = express(); // app -> express application, express is a middleware for request and response
 // b/w client and server
+
+// !below code is done in separate file -> db/mongoose_config.js
+// mongoose.Promise = global.Promise;
+// mongoose.connect(process.env.MONGODB_URI, {
+//     useNewUrlParser: true
+// });
+
+
+mongoose.connect(process.env.MONGODB_URI)
+    .then(() => {
+        console.log('connected to db !');
+    })
+    .catch(() => {
+        console.log('failed to connect to db!');
+    })
 
 // use new middleware
 /* app.use((req, resp, next) => {
@@ -36,7 +58,13 @@ app.put(); */
 
 app.post('/api/posts', (req, resp, next) => {
     const postRequested = req.body;
-    console.log(postRequested);
+
+    // !saving in mongodb cloud -> mongodb atlas
+    const post = new PostModel({
+        title: req.body.title,
+        content: req.body.content
+    })
+    console.log(post);
     resp.status(201);
     resp.json({
         message: 'Post addded successfully !',
