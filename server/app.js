@@ -1,4 +1,5 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 
 // route/path
 const app = express(); // app -> express application, express is a middleware for request and response
@@ -10,6 +11,14 @@ const app = express(); // app -> express application, express is a middleware fo
     next(); //request will continue its journey
 }); */
 
+app.use(bodyParser.json()); // !middleware which parses incoming request in JSON format, this body-parser middleware must be
+// !registered with express so wrote inside app.use();
+
+app.use(bodyParser.urlencoded({ // to parse
+    extended: false
+}));
+
+
 // !CORS error-
 app.use((req, resp, next) => {
     // before contiuing the request to next middle ware just written below this middleware want to remove CORS error
@@ -20,8 +29,24 @@ app.use((req, resp, next) => {
     next();
 });
 
+// Instead of using use() we can be use- http methods like-
+/* app.post();
+app.get();
+app.put(); */
+
+app.post('/api/posts', (req, resp, next) => {
+    const postRequested = req.body;
+    console.log(postRequested);
+    resp.status(201);
+    resp.json({
+        message: 'Post addded successfully !',
+        posts: postRequested,
+        status: 201
+    })
+});
+
 // !All this middleware will executed sequentially as they written
-app.use('/api/posts', (req, resp, next) => {
+app.use('/api/posts', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> app.get()
     // resp.send('hello express'); // sending response for incoming request
     const posts = [{
             title: 'Test-1',
