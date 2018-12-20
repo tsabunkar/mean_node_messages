@@ -116,7 +116,7 @@ app.get('/api/posts', (req, resp, next) => { // ! Instead of app.use() --we_can_
 });
 
 
-// DELETE by Id
+// !DELETE by Id
 app.delete('/api/posts/:idToDelete', (req, resp, next) => {
     console.log(req.params.idToDelete);
     PostModel.findByIdAndDelete({
@@ -137,6 +137,26 @@ app.delete('/api/posts/:idToDelete', (req, resp, next) => {
             })
         });
 
+});
+
+// !PUT
+app.put('/api/posts/:idToBeUpdated', (req, resp, next) => {
+    const postToBeUpdated = new PostModel({
+        _id: req.params.id,
+        title: req.body.title,
+        content: req.body.content
+    })
+    PostModel.findByIdAndUpdate({ _id: req.params.idToBeUpdated }, postToBeUpdated)
+        .then((result) => {
+            console.log(result);
+            resp.status(200).json({
+                message: 'Posts Updated successfully',
+                data: result,
+                status: 200
+            })
+        }).catch((err) => {
+            console.log(err);
+        });
 });
 
 module.exports = { // exporting the app
