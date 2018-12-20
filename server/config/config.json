@@ -2,12 +2,13 @@
 
     "test": {
         "PORT": 3000,
-        "MONGODB_URI": "mongodb+srv://tejas-admin:icui4cuNOW@cluster0-0mtaj.azure.mongodb.net/test?retryWrites=true",
+        "MONGODB_URI": "mongodb+srv://tejas-admin:icui4cuNOW@mycluster-0mtaj.mongodb.net/testdb?retryWrites=true",
         "JWT_SECRET": "mySalt123!"
     },
     "development": {
+        
         "PORT": 3000,
-        "MONGODB_URI": "mongodb+srv://tejas-admin:icui4cuNOW@cluster0-0mtaj.azure.mongodb.net/test?retryWrites=true",
+        "MONGODB_URI": "mongodb+srv://tejas-admin:icui4cuNOW@mycluster-0mtaj.mongodb.net/postMessagesdb?retryWrites=true",
         "JWT_SECRET": "mySalt123!"
     }
 }

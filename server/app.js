@@ -19,7 +19,7 @@ const app = express(); // app -> express application, express is a middleware fo
 // });
 
 
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI) // connecting to mongodb db atlas
     .then(() => {
         console.log('connected to db !');
     })
@@ -60,41 +60,76 @@ app.post('/api/posts', (req, resp, next) => {
     const postRequested = req.body;
 
     // !saving in mongodb cloud -> mongodb atlas
-    const post = new PostModel({
+    const postModel = new PostModel({
         title: req.body.title,
         content: req.body.content
     })
-    console.log(post);
+    console.log(postModel);
+    postModel.save(); // this postmodel collection will be saved in the mongodb db
     resp.status(201);
     resp.json({
         message: 'Post addded successfully !',
-        posts: postRequested,
+        posts: postModel,
         status: 201
     })
 });
 
 // !All this middleware will executed sequentially as they written
-app.use('/api/posts', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> app.get()
+app.get('/api/posts', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> app.get()
     // resp.send('hello express'); // sending response for incoming request
-    const posts = [{
-            title: 'Test-1',
-            content: 'This is test-1 description',
-            id: 1
-        },
-        {
-            title: 'Test-2',
-            content: 'This is test-2 description',
-            id: 2
-        },
-    ];
-    resp.status(200);
-    resp.json({
-        message: 'Posts fetched successfully',
-        posts,
-        status: 200
+    /*    const posts = [{
+               title: 'Test-1',
+               content: 'This is test-1 description',
+               id: 1
+           },
+           {
+               title: 'Test-2',
+               content: 'This is test-2 description',
+               id: 2
+           },
+       ]; */
+    // !fetchind data from mongodb
+    PostModel.find().then((resultDocuments) => {
+        console.log(resultDocuments);
+        resp.status(200);
+        resp.json({
+            message: 'Posts fetched successfully',
+            posts: resultDocuments,
+            status: 200
+        });
+
+    }).catch((err) => {
+        console.log(err);
+        resp.status(500);
+        resp.json({
+            message: 'Posts fetched successfully',
+            posts: err,
+            status: 500
+        });
     });
 
+
     // which shld not call next() bcoz we want to finish this (http://localhost:3000/api/posts) request 
+});
+
+
+// DELETE by Id
+app.delete('/api/posts/:idToDelete', (req, resp, next) => {
+    console.log(req.params.idToDelete);
+    PostModel.findByIdAndDelete({
+            _id: req.params.idToDelete
+        })
+        .then((result) => {
+            console.log('result', result);
+            resp.status(200).json({
+                message: 'Posts Deleted successfully',
+                data: result,
+                status: 200
+            })
+        }).catch((err) => {
+
+        });
+
 });
 
 module.exports = { // exporting the app
