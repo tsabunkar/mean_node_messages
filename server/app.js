@@ -65,13 +65,16 @@ app.post('/api/posts', (req, resp, next) => {
         content: req.body.content
     })
     console.log(postModel);
-    postModel.save(); // this postmodel collection will be saved in the mongodb db
-    resp.status(201);
-    resp.json({
-        message: 'Post addded successfully !',
-        posts: postModel,
-        status: 201
-    })
+    postModel.save() // this postmodel collection will be saved in the mongodb db
+        .then(createdPost => { // returning the _id value to frontend so that it can update the particular post object
+            resp.status(201);
+            resp.json({
+                message: 'Post addded successfully !',
+                postIdCreatedByMongo: createdPost['_id'],
+                status: 201
+            })
+        })
+
 });
 
 // !All this middleware will executed sequentially as they written
@@ -117,8 +120,8 @@ app.get('/api/posts', (req, resp, next) => { // ! Instead of app.use() --we_can_
 app.delete('/api/posts/:idToDelete', (req, resp, next) => {
     console.log(req.params.idToDelete);
     PostModel.findByIdAndDelete({
-            _id: req.params.idToDelete
-        })
+        _id: req.params.idToDelete
+    })
         .then((result) => {
             console.log('result', result);
             resp.status(200).json({
@@ -127,7 +130,11 @@ app.delete('/api/posts/:idToDelete', (req, resp, next) => {
                 status: 200
             })
         }).catch((err) => {
-
+            resp.status(200).json({
+                message: 'Posts Deleted failed',
+                data: err,
+                status: 500
+            })
         });
 
 });
