@@ -56,6 +56,7 @@ app.use((req, resp, next) => {
 app.get();
 app.put(); */
 
+// !POST
 app.post('/api/posts', (req, resp, next) => {
     const postRequested = req.body;
 
@@ -74,23 +75,16 @@ app.post('/api/posts', (req, resp, next) => {
                 status: 201
             })
         })
+        .catch(err => {
+            console.log(err);
+        });
 
 });
 
 // !All this middleware will executed sequentially as they written
 app.get('/api/posts', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> app.get()
     // resp.send('hello express'); // sending response for incoming request
-    /*    const posts = [{
-               title: 'Test-1',
-               content: 'This is test-1 description',
-               id: 1
-           },
-           {
-               title: 'Test-2',
-               content: 'This is test-2 description',
-               id: 2
-           },
-       ]; */
+
     // !fetchind data from mongodb
     PostModel.find().then((resultDocuments) => {
         console.log(resultDocuments);
@@ -120,8 +114,8 @@ app.get('/api/posts', (req, resp, next) => { // ! Instead of app.use() --we_can_
 app.delete('/api/posts/:idToDelete', (req, resp, next) => {
     console.log(req.params.idToDelete);
     PostModel.findByIdAndDelete({
-        _id: req.params.idToDelete
-    })
+            _id: req.params.idToDelete
+        })
         .then((result) => {
             console.log('result', result);
             resp.status(200).json({
@@ -141,12 +135,17 @@ app.delete('/api/posts/:idToDelete', (req, resp, next) => {
 
 // !PUT
 app.put('/api/posts/:idToBeUpdated', (req, resp, next) => {
+    // console.log('req------', req.body);
+    // console.log('params------', req.params.idToBeUpdated);
+    // console.log('id------', req.body.id);
     const postToBeUpdated = new PostModel({
-        _id: req.params.id,
+        _id: req.params.idToBeUpdated,
         title: req.body.title,
         content: req.body.content
     })
-    PostModel.findByIdAndUpdate({ _id: req.params.idToBeUpdated }, postToBeUpdated)
+    PostModel.findOneAndUpdate({
+            _id: req.params.idToBeUpdated
+        }, postToBeUpdated)
         .then((result) => {
             console.log(result);
             resp.status(200).json({
@@ -157,6 +156,24 @@ app.put('/api/posts/:idToBeUpdated', (req, resp, next) => {
         }).catch((err) => {
             console.log(err);
         });
+});
+
+
+// !GET Particular PostMessage
+app.get('/api/posts/:id', (req, resp, next) => {
+    PostModel.findById(req.params.id).then((post) => {
+        resp.status(200).json({
+            message: 'Post Message successfully found',
+            data: post,
+            status: 200
+        })
+    }).catch((err) => {
+        resp.status(200).json({
+            message: 'Post Message failed',
+            data: err,
+            status: 500
+        })
+    });
 });
 
 module.exports = { // exporting the app
