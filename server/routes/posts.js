@@ -1,69 +1,13 @@
-require('./config/config');
 const express = require('express');
-const bodyParser = require('body-parser');
-const {
-    mongoose
-} = require('./db/mongoose_config');
 const {
     PostModel
-} = require('./models/post');
+} = require('../models/post');
 
-const {
-    router
-} = require('./routes/posts');
-// route/path
-const app = express(); // app -> express application, express is a middleware for request and response
-// b/w client and server
-
-// !below code is done in separate file -> db/mongoose_config.js
-// mongoose.Promise = global.Promise;
-// mongoose.connect(process.env.MONGODB_URI, {
-//     useNewUrlParser: true
-// });
+const router = express.Router(); // Router constructor
 
 
-mongoose.connect(process.env.MONGODB_URI) // connecting to mongodb db atlas
-    .then(() => {
-        console.log('connected to db !');
-    })
-    .catch(() => {
-        console.log('failed to connect to db!');
-    })
-
-// use new middleware
-/* app.use((req, resp, next) => {
-    console.log('first middle-ware');
-    next(); //request will continue its journey
-}); */
-
-app.use(bodyParser.json()); // !middleware which parses incoming request in JSON format, this body-parser middleware must be
-// !registered with express so wrote inside app.use();
-
-app.use(bodyParser.urlencoded({ // to parse
-    extended: false
-}));
-
-
-// !CORS error-
-app.use((req, resp, next) => {
-    // before contiuing the request to next middle ware just written below this middleware want to remove CORS error
-    resp.setHeader('Access-Control-Allow-Origin', '*'); // allowing access to all the url/paths
-    resp.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept'); // it may have this headers key
-    resp.setHeader('Access-Control-Allow-Methods', "GET, POST, PATCH, DELETE, PUT, OPTIONS")
-
-    next();
-});
-
-// Instead of using use() we can be use- http methods like-
-/* app.post();
-app.get();
-app.put(); */
-
-
-
-/* 
 // !POST
-app.post('/api/posts', (req, resp, next) => {
+router.post('', (req, resp, next) => {
     const postRequested = req.body;
 
     // !saving in mongodb cloud -> mongodb atlas
@@ -88,7 +32,7 @@ app.post('/api/posts', (req, resp, next) => {
 });
 
 // !All this middleware will executed sequentially as they written
-app.get('/api/posts', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> app.get()
+router.get('', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> app.get()
     // resp.send('hello express'); // sending response for incoming request
 
     // !fetchind data from mongodb
@@ -117,7 +61,7 @@ app.get('/api/posts', (req, resp, next) => { // ! Instead of app.use() --we_can_
 
 
 // !DELETE by Id
-app.delete('/api/posts/:idToDelete', (req, resp, next) => {
+router.delete('/:idToDelete', (req, resp, next) => {
     console.log(req.params.idToDelete);
     PostModel.findByIdAndDelete({
             _id: req.params.idToDelete
@@ -140,7 +84,7 @@ app.delete('/api/posts/:idToDelete', (req, resp, next) => {
 });
 
 // !PUT
-app.put('/api/posts/:idToBeUpdated', (req, resp, next) => {
+router.put('/:idToBeUpdated', (req, resp, next) => {
     // console.log('req------', req.body);
     // console.log('params------', req.params.idToBeUpdated);
     // console.log('id------', req.body.id);
@@ -166,7 +110,7 @@ app.put('/api/posts/:idToBeUpdated', (req, resp, next) => {
 
 
 // !GET Particular PostMessage
-app.get('/api/posts/:id', (req, resp, next) => {
+router.get('/:id', (req, resp, next) => {
     PostModel.findById(req.params.id).then((post) => {
         resp.status(200).json({
             message: 'Post Message successfully found',
@@ -180,11 +124,8 @@ app.get('/api/posts/:id', (req, resp, next) => {
             status: 500
         })
     });
-}); */
+});
 
-// !above code is moved to separate file called router in -> models/posts.js
-app.use('/api/posts', router); // filter routes with '/api/posts' -> redirect to postsRoutes
-
-module.exports = { // exporting the app
-    app
-};
+module.exports = {
+    router
+}
