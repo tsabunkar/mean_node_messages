@@ -2,18 +2,58 @@ const express = require('express');
 const {
     PostModel
 } = require('../models/post');
+const multer = require('multer');
 
 const router = express.Router(); // Router constructor
 
+const MIME_TYPE_MAP = {
+    'image/png': 'png',
+    'image/jpeg': 'jpeg',
+    'image/jpg': 'jpg',
+}
+
+// !logic to validate the image recieved from front-end and storing it in the node server -> '/server/images' folder
+const storage = multer.diskStorage({
+    destination: (req, file, callback) => { // this will be executed , when multer tries to save the file
+        const pathOfImageStored = 'server/images';
+        const isValidMimeType = MIME_TYPE_MAP[file.mimetype];
+        let error;
+        if (isValidMimeType) {
+            error = null;
+        } else {
+            error = new Error('Invalid mime type');
+        }
+
+        callback(error, pathOfImageStored); // first argum of callback is any_error, 2nd argum is path of image stored
+    },
+    filename: (req, file, callback) => {
+
+        const name = file.originalname.toLowerCase().split(' ').join('_'); // any white space in the image path is replaced with _ (underscore)
+        const extension = MIME_TYPE_MAP[file.mimetype]; // [file.mimetype -> will get the extension of image and then we r mapping
+        // to required value from our const -> MIME_TYPE_MAP
+        callback(null, name + '-' + Date.now() + '.' + extension); // first argum of callback is any_error, 2nd argum is image file name
+    }
+})
+
+
 
 // !POST
-router.post('', (req, resp, next) => {
+// router.post('', (req, resp, next) => {
+// ?The 2nd argument is -> middleware which we want to run before running the callback function i.e-(req, resp, next)
+// ?In between of first and last argum, We can have zero or any number of arguments. This arguments are middleware which will be
+// ? executed from left to right
+// !multer(storage).single('image') -> means multer will extract single file from incoming request and will try to find a
+// !imageProp property on incoming request body
+router.post('', multer({ storage: storage }).single('imageProp'), (req, resp, next) => {
     const postRequested = req.body;
+
+    const url = req.protocol + '://' + req.get('host');
 
     // !saving in mongodb cloud -> mongodb atlas
     const postModel = new PostModel({
         title: req.body.title,
-        content: req.body.content
+        content: req.body.content,
+        imagePath: url + '/images/' + req.file.filename // image path we r storing the db
     })
     console.log(postModel);
     postModel.save() // this postmodel collection will be saved in the mongodb db
@@ -22,6 +62,16 @@ router.post('', (req, resp, next) => {
             resp.json({
                 message: 'Post addded successfully !',
                 postIdCreatedByMongo: createdPost['_id'],
+                /*  postObject: {
+                     id: createdPost._id,
+                     title: createdPost.title,
+                     content: createdPost.content,
+                     imagePath: createdPost.imagePath
+                 }, */ // !using spread operator
+                postObject: {
+                    ...createdPost,
+                    id: createdPost._id
+                },
                 status: 201
             })
         })
@@ -64,8 +114,8 @@ router.get('', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> 
 router.delete('/:idToDelete', (req, resp, next) => {
     console.log(req.params.idToDelete);
     PostModel.findByIdAndDelete({
-            _id: req.params.idToDelete
-        })
+        _id: req.params.idToDelete
+    })
         .then((result) => {
             console.log('result', result);
             resp.status(200).json({
@@ -94,8 +144,8 @@ router.put('/:idToBeUpdated', (req, resp, next) => {
         content: req.body.content
     })
     PostModel.findOneAndUpdate({
-            _id: req.params.idToBeUpdated
-        }, postToBeUpdated)
+        _id: req.params.idToBeUpdated
+    }, postToBeUpdated)
         .then((result) => {
             console.log(result);
             resp.status(200).json({
