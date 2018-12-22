@@ -44,7 +44,9 @@ const storage = multer.diskStorage({
 // ? executed from left to right
 // !multer(storage).single('image') -> means multer will extract single file from incoming request and will try to find a
 // !imageProp property on incoming request body
-router.post('', multer({ storage: storage }).single('imageProp'), (req, resp, next) => {
+router.post('', multer({
+    storage: storage
+}).single('imageProp'), (req, resp, next) => {
     const postRequested = req.body;
 
     const url = req.protocol + '://' + req.get('host'); // protocol-> will tell weather we r using http or https
@@ -62,12 +64,7 @@ router.post('', multer({ storage: storage }).single('imageProp'), (req, resp, ne
             resp.json({
                 message: 'Post addded successfully !',
                 postIdCreatedByMongo: createdPost['_id'],
-                /*  postObject: {
-                     id: createdPost._id,
-                     title: createdPost.title,
-                     content: createdPost.content,
-                     imagePath: createdPost.imagePath
-                 }, */ // !using spread operator
+
                 postObject: {
                     ...createdPost,
                     id: createdPost._id
@@ -81,29 +78,54 @@ router.post('', multer({ storage: storage }).single('imageProp'), (req, resp, ne
 
 });
 
+// !GETALL
 // !All this middleware will executed sequentially as they written
 router.get('', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> app.get()
-    // resp.send('hello express'); // sending response for incoming request
+
+    let pageSize = req.query.pageSize; // extracting pageSize value from query param of url
+    let currentPage = req.query.currentPage;
+
+    // converting string to number
+    pageSize = +pageSize;
+    currentPage = +currentPage;
+
+    const postQuery = PostModel.find();
+    if (pageSize && currentPage) { // pageSize && currentPage are not undefined or null (means some value exist, then execute this if stat)
+        postQuery
+            .skip(pageSize * (currentPage - 1)) // we will not retrieve all records, but will skip first 'n' records
+            // for ex- pageSize =10; currentPage =2; -> (10*(2-1)) = (10*1) = 10 (means first 10 recors will be skipped) 
+            // thus we r displaying records from 10 to max records(100)
+            .limit(pageSize); // will limit/restrict the number of records to display
+
+    }
+    let fetchedPostsMessages;
 
     // !fetchind data from mongodb
-    PostModel.find().then((resultDocuments) => {
-        console.log(resultDocuments);
-        resp.status(200);
-        resp.json({
-            message: 'Posts fetched successfully',
-            posts: resultDocuments,
-            status: 200
-        });
+    postQuery.then((resultDocuments) => {
 
-    }).catch((err) => {
-        console.log(err);
-        resp.status(500);
-        resp.json({
-            message: 'Posts fetched successfully',
-            posts: err,
-            status: 500
+            fetchedPostsMessages = resultDocuments;
+            return PostModel.count(); // count the number of records for that model
+            // since  -> return PostModel.count(); returns promise so promise resolved in next then block
+        })
+        .then((countValue) => {
+            resp.status(200);
+            resp.setHeader('max-records', countValue)
+            resp.json({
+                message: 'Posts fetched successfully',
+                posts: fetchedPostsMessages,
+                status: 200
+            });
+
+        })
+        .catch((err) => {
+            console.log(err);
+            resp.status(500);
+            resp.json({
+                message: 'Posts fetched successfully',
+                posts: err,
+                status: 500
+            });
         });
-    });
 
 
     // which shld not call next() bcoz we want to finish this (http://localhost:3000/api/posts) request 
@@ -114,8 +136,8 @@ router.get('', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> 
 router.delete('/:idToDelete', (req, resp, next) => {
     console.log(req.params.idToDelete);
     PostModel.findByIdAndDelete({
-        _id: req.params.idToDelete
-    })
+            _id: req.params.idToDelete
+        })
         .then((result) => {
             console.log('result', result);
             resp.status(200).json({
@@ -134,26 +156,25 @@ router.delete('/:idToDelete', (req, resp, next) => {
 });
 
 // !PUT
-router.put('/:idToBeUpdated', multer({ storage: storage }).single('imageProp'), (req, resp, next) => {
-    // console.log('req------', req.body);
-    // console.log('params------', req.params.idToBeUpdated);
-    // console.log('id------', req.body.id);
+router.put('/:idToBeUpdated', multer({
+    storage: storage
+}).single('imageProp'), (req, resp, next) => {
 
     let imagePath = req.body.imagePath;
-    if(req.file){ // new image file is uploaded, while updating/editing
+    if (req.file) { // new image file is uploaded, while updating/editing
         const url = req.protocol + '://' + req.get('host');
-        imagePath = url + '/images/' + req.file.filename 
+        imagePath = url + '/images/' + req.file.filename
     }
 
     const postToBeUpdated = new PostModel({
         _id: req.params.idToBeUpdated,
         title: req.body.title,
         content: req.body.content,
-        imagePath: imagePath 
+        imagePath: imagePath
     })
     PostModel.findOneAndUpdate({
-        _id: req.params.idToBeUpdated
-    }, postToBeUpdated)
+            _id: req.params.idToBeUpdated
+        }, postToBeUpdated)
         .then((result) => {
             console.log(result);
             resp.status(200).json({
