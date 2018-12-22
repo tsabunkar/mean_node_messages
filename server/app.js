@@ -2,6 +2,9 @@ require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const swaggerUi = require('swagger-ui-express');
+
+const swaggerDocument = require('./config/swagger.json');
 const {
     mongoose
 } = require('./db/mongoose_config');
@@ -10,8 +13,13 @@ const {
 } = require('./models/post');
 
 const {
-    router
+    postsMessageRoutes
 } = require('./routes/posts');
+const {
+    authRoutes
+} = require('./routes/auth');
+
+
 // route/path
 const app = express(); // app -> express application, express is a middleware for request and response
 // b/w client and server
@@ -185,8 +193,15 @@ app.get('/api/posts/:id', (req, resp, next) => {
     });
 }); */
 
+// !Swagger-UI
+// http://localhost:3000/api-docs/
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+    explorer: true
+}));
+
 // !above code is moved to separate file called router in -> models/posts.js
-app.use('/api/posts', router); // filter routes with '/api/posts' -> redirect to postsRoutes
+app.use('/api/posts', postsMessageRoutes); // filter routes with '/api/posts' -> redirect to postsRoutes
+app.use('/api/users', authRoutes); // filter routes with '/api/auth' -> redirect to authRoutes
 
 module.exports = { // exporting the app
     app

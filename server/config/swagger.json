@@ -1,0 +1,123 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "3.0.0",
+        "title": "Swagger Posts Message API Documentation",
+        "description": "A sample API that uses a postsMessage as an example to demonstrate features in the swagger-2.0 specification",
+        "contact": {
+            "name": "Tejas S Sabunkar",
+            "url": "https://github.com/tsabunkar",
+            "email": "tsabunkar@gmail.com"
+        },
+        "license": {
+            "name": "MIT Liscense",
+            "url": "https://opensource.org/licenses/MIT"
+        }
+    },
+    "host": "localhost:3000",
+    "basePath": "/api",
+    "tags": [{
+        "name": "PostsMessages",
+        "description": "API's for Messages"
+    }],
+    "schemes": [
+        "http"
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/posts": {
+            "post": {
+                "tags": ["PostsMessages"],
+                "summary": "Post Ur PostsMessage object",
+                "description": "Create new Post Messages",
+                "parameters": [{
+                    "name": "",
+                    "description": "Post Messages model which we want to create",
+                    "in": "body",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/PostsMessagesSchema"
+                    }
+                }],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "new Post message is created bro!",
+                        "schema": {
+                            "uniqueItems": false,
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/PostsMessagesSchema"
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": ["PostsMessages"],
+                "summary": "Get All Posts Messages",
+                "description": "Get All",
+                "responses": {
+                    "200": {
+                        "description": "Okay found all posts",
+                        "schema": {
+                            "$ref": "#/definitions/Posts"
+                        }
+                    }
+                }
+            }
+
+        }
+    },
+    "definitions": {
+        "PostsMessagesSchema": {
+            "required": [
+                "_id",
+                "title",
+                "content",
+                "imagePath"
+            ],
+            "properties": {
+                "_id": {
+                    "type": "string",
+                    "uniqueItems": true
+                },
+                "title": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "imagePath": {
+                    "type": "string"
+                }
+            }
+        },
+        "userSchema": {
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "Posts": {
+            "type": "array",
+            "$ref": "#definitions/PostsMessagesSchema"
+        }
+    }
+}

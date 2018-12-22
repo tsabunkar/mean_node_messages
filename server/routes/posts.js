@@ -4,6 +4,8 @@ const {
 } = require('../models/post');
 const multer = require('multer');
 
+
+
 const router = express.Router(); // Router constructor
 
 const MIME_TYPE_MAP = {
@@ -206,5 +208,5 @@ router.get('/:id', (req, resp, next) => {
 });
 
 module.exports = {
-    router
+    postsMessageRoutes: router
 }
