@@ -1,6 +1,7 @@
 require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 const {
     mongoose
 } = require('./db/mongoose_config');
@@ -43,6 +44,8 @@ app.use(bodyParser.urlencoded({ // to parse
     extended: false
 }));
 
+// bydefault we cannot acces server/images folder, we can access that ->
+app.use('/images', express.static(path.join('server/images'))); // request going to '/images' is forwarded to server/images folder
 
 // !CORS error-
 app.use((req, resp, next) => {

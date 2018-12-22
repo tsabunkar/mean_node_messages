@@ -47,7 +47,7 @@ const storage = multer.diskStorage({
 router.post('', multer({ storage: storage }).single('imageProp'), (req, resp, next) => {
     const postRequested = req.body;
 
-    const url = req.protocol + '://' + req.get('host');
+    const url = req.protocol + '://' + req.get('host'); // protocol-> will tell weather we r using http or https
 
     // !saving in mongodb cloud -> mongodb atlas
     const postModel = new PostModel({
@@ -134,14 +134,22 @@ router.delete('/:idToDelete', (req, resp, next) => {
 });
 
 // !PUT
-router.put('/:idToBeUpdated', (req, resp, next) => {
+router.put('/:idToBeUpdated', multer({ storage: storage }).single('imageProp'), (req, resp, next) => {
     // console.log('req------', req.body);
     // console.log('params------', req.params.idToBeUpdated);
     // console.log('id------', req.body.id);
+
+    let imagePath = req.body.imagePath;
+    if(req.file){ // new image file is uploaded, while updating/editing
+        const url = req.protocol + '://' + req.get('host');
+        imagePath = url + '/images/' + req.file.filename 
+    }
+
     const postToBeUpdated = new PostModel({
         _id: req.params.idToBeUpdated,
         title: req.body.title,
-        content: req.body.content
+        content: req.body.content,
+        imagePath: imagePath 
     })
     PostModel.findOneAndUpdate({
         _id: req.params.idToBeUpdated
