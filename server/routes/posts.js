@@ -62,7 +62,7 @@ router.post('', isUserAuthenticated, multer({ // !safeguarding POST by -> isUser
         imagePath: url + '/images/' + req.file.filename, // image path we r storing the db
         _creator: req.customUserDataStorage.userId
     })
-    console.log(postModel);
+    // console.log(postModel);
     postModel.save() // this postmodel collection will be saved in the mongodb db
         .then(createdPost => { // returning the _id value to frontend so that it can update the particular post object
             resp.status(201);
@@ -78,7 +78,11 @@ router.post('', isUserAuthenticated, multer({ // !safeguarding POST by -> isUser
             })
         })
         .catch(err => {
-            console.log(err);
+            resp.status(500).json({
+                message: 'Failed to create PostMessage bcoz- ' + err,
+                users: err,
+                status: 500
+            });
         });
 
 });
@@ -123,10 +127,9 @@ router.get('', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> 
 
         })
         .catch((err) => {
-            console.log(err);
             resp.status(500);
             resp.json({
-                message: 'Posts fetched successfully',
+                message: 'Failed to fetch the Post Messages bcoz- ' + err,
                 posts: err,
                 status: 500
             });
@@ -162,8 +165,8 @@ router.delete('/:idToDelete', isUserAuthenticated, (req, resp, next) => { // !sa
             }
 
         }).catch((err) => {
-            resp.status(200).json({
-                message: 'Posts Deleted failed',
+            resp.status(500).json({
+                message: 'Posts Deleted failed' + err,
                 data: err,
                 status: 500
             })
@@ -211,7 +214,11 @@ router.put('/:idToBeUpdated', isUserAuthenticated, multer({
             }
 
         }).catch((err) => {
-            console.log(err);
+            resp.status(500).json({
+                message: 'Failed to update PostMessage bcoz- ' + err,
+                users: err,
+                status: 500
+            });
         });
 });
 
@@ -219,14 +226,24 @@ router.put('/:idToBeUpdated', isUserAuthenticated, multer({
 // !GET Particular PostMessage
 router.get('/:id', (req, resp, next) => {
     PostModel.findById(req.params.id).then((post) => {
-        resp.status(200).json({
-            message: 'Post Message successfully found',
-            data: post,
-            status: 200
-        })
+
+        if (post) {
+            resp.status(200).json({
+                message: 'Post Message successfully found',
+                data: post,
+                status: 200
+            })
+        } else {
+            resp.status(500).json({
+                message: 'Post Message Not found in the db!',
+                data: 'failed',
+                status: 500
+            })
+        }
+
     }).catch((err) => {
-        resp.status(200).json({
-            message: 'Post Message failed',
+        resp.status(500).json({
+            message: 'Post Message failed to get for Id- ' + req.params.id + 'bcoz - ' + err,
             data: err,
             status: 500
         })

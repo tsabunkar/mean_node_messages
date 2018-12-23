@@ -28,7 +28,7 @@ router.post('/signup', (req, resp, next) => {
                 })
                 .catch(err => {
                     resp.status(500).json({
-                        message: 'User created failed',
+                        message: 'User created failed bcoz- ' + err,
                         users: err,
                         status: 500
                     });
@@ -55,7 +55,7 @@ router.post('/signup', (req, resp, next) => {
     return isValidpassword;
 } */
 
-
+// !POST
 router.post('/login', async (req, resp, next) => {
 
     // !Wheater email exist ?
@@ -66,7 +66,7 @@ router.post('/login', async (req, resp, next) => {
 
         if (!userObject) { // user object doest not exist
             resp.status(401).json({
-                message: 'User Object doesnot exist in db',
+                message: 'User doesnot exist in database',
                 users: 'failed',
                 status: 401
             });
@@ -82,7 +82,7 @@ router.post('/login', async (req, resp, next) => {
         if (!isValidpassword) {
             resp.status(401).json({
                 message: 'Authentication failed, bocz is password is wrong!!',
-                users: err,
+                users: 'failed',
                 status: 401
             });
             return
@@ -111,7 +111,7 @@ router.post('/login', async (req, resp, next) => {
 
     } catch (err) {
         resp.status(401).json({
-            message: 'Authentication failed',
+            message: 'Authentication failed bcoz- ' + err,
             users: err,
             status: 401
         });
