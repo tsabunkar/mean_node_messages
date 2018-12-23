@@ -59,7 +59,7 @@ app.use('/images', express.static(path.join('server/images'))); // request going
 app.use((req, resp, next) => {
     // before contiuing the request to next middle ware just written below this middleware want to remove CORS error
     resp.setHeader('Access-Control-Allow-Origin', '*'); // allowing access to all the url/paths
-    resp.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, authorization'); // it may have this headers key
+    resp.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization'); // it may have this headers key
     resp.setHeader('Access-Control-Expose-Headers', 'max-records, my-token'); // Allowing to custom-header expose to frontend
     resp.setHeader('Access-Control-Allow-Methods', "GET, POST, PATCH, DELETE, PUT, OPTIONS")
 

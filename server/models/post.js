@@ -15,6 +15,12 @@ const postSchema = mongoose.Schema({
     imagePath: {
         type: String,
         required: true
+    },
+    // mapping userSchema with postMessage Schema -> Authorization
+    _creator: {
+        type: mongoose.Schema.Types.ObjectId, // storing ObjectId of user ->who has created this post object
+        ref: "user_collection", // giving reference to the userModel
+        required: true
     }
 });
 

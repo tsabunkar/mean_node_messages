@@ -60,7 +60,7 @@ router.post('/login', async (req, resp, next) => {
 
     // !Wheater email exist ?
     try {
-        let userObject = await UserModel.find({
+        let userObject = await UserModel.findOne({
             email: req.body.email
         });
 
@@ -74,7 +74,7 @@ router.post('/login', async (req, resp, next) => {
         }
 
         // !we found the user object with valid email and lets check the password enter is valid
-        let isValidpassword = await bcrypt.compare(req.body.password, userObject[0].password);
+        let isValidpassword = await bcrypt.compare(req.body.password, userObject.password);
         // !NOTE:- await dosent wait for bcrypt.compare because bcrypt.compare does not return a promise. Soo->
         // let isValidpassword = checkenteredPasswordIsValid(req, userObject);
 
@@ -92,17 +92,18 @@ router.post('/login', async (req, resp, next) => {
 
             const token = jwt.sign({
                 email: userObject.email,
-                userId: userObject._id
+                userId: userObject._id // !sending userModel ObjectId to frontend, so that we can use authoriztion in creator poperty
             }, 'mySecreat123!', {
                 expiresIn: '1h', // token will be valid/expired after 1hour 
             });
 
-
+            // !this token has email and userObjectId value which has been hashed or sign by jwt
             resp.setHeader('my-token', token); // !setting token in the header
             resp.status(200).json({
                 message: 'valid user name and password!',
                 users: 'valid',
                 expiresIn: 3600, // in seconds
+                userIdSendFromServer: userObject._id,
                 status: 200
             });
 

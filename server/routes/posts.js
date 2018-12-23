@@ -59,7 +59,8 @@ router.post('', isUserAuthenticated, multer({ // !safeguarding POST by -> isUser
     const postModel = new PostModel({
         title: req.body.title,
         content: req.body.content,
-        imagePath: url + '/images/' + req.file.filename // image path we r storing the db
+        imagePath: url + '/images/' + req.file.filename, // image path we r storing the db
+        _creator: req.customUserDataStorage.userId
     })
     console.log(postModel);
     postModel.save() // this postmodel collection will be saved in the mongodb db
@@ -139,16 +140,27 @@ router.get('', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> 
 // !DELETE by Id
 router.delete('/:idToDelete', isUserAuthenticated, (req, resp, next) => { // !safeguarding DELETE by -> isUserAuthenticated middleware
     console.log(req.params.idToDelete);
-    PostModel.findByIdAndDelete({
-            _id: req.params.idToDelete
+    PostModel.deleteOne({
+            _id: req.params.idToDelete,
+            _creator: req.customUserDataStorage.userId
         })
         .then((result) => {
             console.log('result', result);
-            resp.status(200).json({
-                message: 'Posts Deleted successfully',
-                data: result,
-                status: 200
-            })
+            if (result.n > 0) {
+                resp.status(200).json({
+                    message: 'Posts Deleted successfully',
+                    data: result,
+                    status: 200
+                });
+
+            } else {
+                resp.status(401).json({
+                    message: 'Posts Deleted Failed, bcoz you have not created it bro!',
+                    data: result,
+                    status: 401
+                })
+            }
+
         }).catch((err) => {
             resp.status(200).json({
                 message: 'Posts Deleted failed',
@@ -174,18 +186,30 @@ router.put('/:idToBeUpdated', isUserAuthenticated, multer({
         _id: req.params.idToBeUpdated,
         title: req.body.title,
         content: req.body.content,
-        imagePath: imagePath
+        imagePath: imagePath,
+        _creator: req.customUserDataStorage.userId
     })
-    PostModel.findOneAndUpdate({
-            _id: req.params.idToBeUpdated
+    PostModel.updateOne({
+            _id: req.params.idToBeUpdated,
+            _creator: req.customUserDataStorage.userId // finding the document, weather creater property also
         }, postToBeUpdated)
         .then((result) => {
-            console.log(result);
-            resp.status(200).json({
-                message: 'Posts Updated successfully',
-                data: result,
-                status: 200
-            })
+
+            // checking weather the same user who has created it, is updating 
+            if (result.nModified > 0) { // if same user who created has modified the object
+                resp.status(200).json({
+                    message: 'Posts Updated successfully',
+                    data: result,
+                    status: 200
+                })
+            } else {
+                resp.status(401).json({
+                    message: 'Posts Updated Failed, bcoz you have not created it bro!',
+                    data: result,
+                    status: 401
+                })
+            }
+
         }).catch((err) => {
             console.log(err);
         });
