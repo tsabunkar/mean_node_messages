@@ -94,7 +94,7 @@ router.post('/login', async (req, resp, next) => {
                 email: userObject.email,
                 userId: userObject._id
             }, 'mySecreat123!', {
-                expiresIn: '1h', // token will be valid for 1hour 
+                expiresIn: '1h', // token will be valid/expired after 1hour 
             });
 
 
@@ -102,6 +102,7 @@ router.post('/login', async (req, resp, next) => {
             resp.status(200).json({
                 message: 'valid user name and password!',
                 users: 'valid',
+                expiresIn: 3600, // in seconds
                 status: 200
             });
 
