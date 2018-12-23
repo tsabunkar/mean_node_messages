@@ -3,7 +3,9 @@ const {
     PostModel
 } = require('../models/post');
 const multer = require('multer');
-
+const {
+    isUserAuthenticated
+} = require('../middleware/check-auth');
 
 
 const router = express.Router(); // Router constructor
@@ -46,7 +48,7 @@ const storage = multer.diskStorage({
 // ? executed from left to right
 // !multer(storage).single('image') -> means multer will extract single file from incoming request and will try to find a
 // !imageProp property on incoming request body
-router.post('', multer({
+router.post('', isUserAuthenticated, multer({ // !safeguarding POST by -> isUserAuthenticated middleware
     storage: storage
 }).single('imageProp'), (req, resp, next) => {
     const postRequested = req.body;
@@ -106,7 +108,7 @@ router.get('', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> 
     postQuery.then((resultDocuments) => {
 
             fetchedPostsMessages = resultDocuments;
-            return PostModel.count(); // count the number of records for that model
+            return PostModel.countDocuments(); // count the number of records for that model
             // since  -> return PostModel.count(); returns promise so promise resolved in next then block
         })
         .then((countValue) => {
@@ -135,7 +137,7 @@ router.get('', (req, resp, next) => { // ! Instead of app.use() --we_can_use--> 
 
 
 // !DELETE by Id
-router.delete('/:idToDelete', (req, resp, next) => {
+router.delete('/:idToDelete', isUserAuthenticated, (req, resp, next) => { // !safeguarding DELETE by -> isUserAuthenticated middleware
     console.log(req.params.idToDelete);
     PostModel.findByIdAndDelete({
             _id: req.params.idToDelete
@@ -158,9 +160,9 @@ router.delete('/:idToDelete', (req, resp, next) => {
 });
 
 // !PUT
-router.put('/:idToBeUpdated', multer({
+router.put('/:idToBeUpdated', isUserAuthenticated, multer({
     storage: storage
-}).single('imageProp'), (req, resp, next) => {
+}).single('imageProp'), (req, resp, next) => { // !safeguarding PUT by -> isUserAuthenticated middleware
 
     let imagePath = req.body.imagePath;
     if (req.file) { // new image file is uploaded, while updating/editing
