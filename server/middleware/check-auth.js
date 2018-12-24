@@ -7,7 +7,7 @@ let isUserAuthenticated = (req, resp, next) => {
         const token = req.get('Authorization').split(' ')[1]; // token (key,value)-> Bearer sfjRHKhksfgh23jksf
 
         // !Manually adding decodedToken in the request
-        const decodedToken = jwt.verify(token, 'mySecreat123!');
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
         // ! creating custom property - customUserDataStorage in request, which has email and userId that
         // ! was send during to angular when '/login' i.e- send as jwt.sign() as values (#hasehed)

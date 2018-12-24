@@ -151,7 +151,7 @@ updatePostMessage = (req, resp, next) => { // !safeguarding PUT by -> isUserAuth
         .then((result) => {
 
             // checking weather the same user who has created it, is updating 
-            if (result.nModified > 0) { // if same user who created has modified the object
+            if (result.n > 0) { // if same user who created has modified the object
                 resp.status(200).json({
                     message: 'Posts Updated successfully',
                     data: result,

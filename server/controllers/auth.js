@@ -89,7 +89,7 @@ userLogin = async (req, resp, next) => {
             const token = jwt.sign({
                 email: userObject.email,
                 userId: userObject._id // !sending userModel ObjectId to frontend, so that we can use authoriztion in creator poperty
-            }, 'mySecreat123!', {
+            }, process.env.JWT_SECRET, {
                 expiresIn: '1h', // token will be valid/expired after 1hour 
             });
 
