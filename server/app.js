@@ -1,13 +1,10 @@
-require('./config/config');
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const swaggerUi = require('swagger-ui-express');
 
 const swaggerDocument = require('./config/swagger.json');
-const {
-    mongoose
-} = require('./db/mongoose_config');
+
 const {
     PostModel
 } = require('./models/post');
@@ -24,26 +21,6 @@ const {
 const app = express(); // app -> express application, express is a middleware for request and response
 // b/w client and server
 
-// !below code is done in separate file -> db/mongoose_config.js
-// mongoose.Promise = global.Promise;
-// mongoose.connect(process.env.MONGODB_URI, {
-//     useNewUrlParser: true
-// });
-
-
-mongoose.connect(process.env.MONGODB_URI) // connecting to mongodb db atlas
-    .then(() => {
-        console.log('connected to db !');
-    })
-    .catch(() => {
-        console.log('failed to connect to db!');
-    })
-
-// use new middleware
-/* app.use((req, resp, next) => {
-    console.log('first middle-ware');
-    next(); //request will continue its journey
-}); */
 
 app.use(bodyParser.json()); // !middleware which parses incoming request in JSON format, this body-parser middleware must be
 // !registered with express so wrote inside app.use();

@@ -1,12 +1,19 @@
 // first mongoose file, which will get executed
+require('../config/config');
 const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
 const url = process.env.MONGODB_URI;
 
 mongoose.connect(url, { // !remove deprication warning
-    useNewUrlParser: true
-});
+        useNewUrlParser: true
+    })
+    .then(() => {
+        console.log('connected to db !');
+    })
+    .catch(() => {
+        console.log('failed to connect to db!');
+    })
 //for production env, we are using the mongodb uri as -> process.env.MONGODB_URI
 
 module.exports = {
