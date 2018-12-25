@@ -23,6 +23,7 @@ const normalizePort = val => {
 
 // checks for any Error's
 const onError = error => {
+    const addr = server.address();
     if (error.syscall !== "listen") {
         throw error;
     }
