@@ -3,7 +3,8 @@
 const {
     UserModel
 } = require('../models/user');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt'); // this dependency requires Python to be installed
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 
@@ -90,8 +91,8 @@ userLogin = async (req, resp, next) => {
                 email: userObject.email,
                 userId: userObject._id // !sending userModel ObjectId to frontend, so that we can use authoriztion in creator poperty
             }, process.env.JWT_SECRET, {
-                expiresIn: '1h', // token will be valid/expired after 1hour 
-            });
+                    expiresIn: '1h', // token will be valid/expired after 1hour 
+                });
 
             // !this token has email and userObjectId value which has been hashed or sign by jwt
             resp.setHeader('my-token', token); // !setting token in the header
